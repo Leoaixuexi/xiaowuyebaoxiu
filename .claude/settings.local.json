@@ -4,7 +4,10 @@
       "Bash(git ls-tree:*)",
       "Bash(\"C:\\Users\\18538\\Desktop\\xiaowuye\\gongdanbaoxiu\\miniprogram\\components\\form-row\\index.json\")",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\n初始化项目 - 小物业工单报修系统\n\n包含的主要功能:\n- 工单管理系统\n- 自定义 tabbar\n- 表单组件\n- 工单详情和编辑页面\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\n更新工单报修系统 - 添加编辑功能和样式优化\n\n主要改动:\n- 更新 custom-tab-bar 导航配置\n- 添加工单详情页面编辑功能\n- 优化 form-row 组件样式\n- 优化编辑页面布局和样式\n- 添加项目文档和配置文件\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit -m \"$(cat <<''EOF''\n更新 gongdanbaoxiu 子模块\n\n子模块更新包含:\n- 工单编辑功能\n- UI 样式优化\n- 组件更新\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
     ],
     "deny": [],
     "ask": []
