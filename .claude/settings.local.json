@@ -11,7 +11,15 @@
       "Bash(dir:*)",
       "Bash(cat:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nfeat: 物业员工功能完整实现 - 提交维修员开发前版本\n\n主要功能：\n- 工作台页面：工单列表、状态筛选、搜索、扫码\n- 工单提交：完整的提报流程和表单验证\n- 工单详情：状态流转、时间轴、复核功能\n- 消息系统：通知公告、待办工单、提醒功能\n- 数据统计：工单统计和排名展示\n- 个人中心：个人信息和设置管理\n\n新增组件：\n- message-card: 消息卡片组件\n- module-icon: 模块图标组件\n- swipeable-message: 可滑动删除消息组件\n\n技术改进：\n- 完善的时间格式化工具\n- 消息模块映射逻辑\n- 优化的UI交互体验\n\n🤖 Generated with Claude Code\nEOF\n)\")",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git tag:*)",
+      "Bash(git remote add:*)",
+      "Bash(openspec list:*)",
+      "Bash(openspec validate:*)",
+      "Bash(openspec show:*)",
+      "Bash(tree:*)",
+      "Bash(ls:*)"
     ],
     "deny": [],
     "ask": []
