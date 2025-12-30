@@ -1,26 +1,8 @@
-## MODIFIED Requirements
+# user-management Specification
 
-### Requirement: User List with Filtering
-用户列表 SHALL 支持按角色、部门、启用状态和关键字筛选用户。
-
-#### Scenario: Filter by role
-- **WHEN** 管理员选择角色筛选条件
-- **THEN** 列表仅显示该角色的用户
-
-#### Scenario: Filter by department
-- **WHEN** 管理员选择部门筛选条件
-- **THEN** 列表仅显示该部门的用户
-
-#### Scenario: Filter by active status
-- **WHEN** 管理员选择启用状态筛选（启用/停用）
-- **THEN** 列表仅显示对应状态的用户
-
-#### Scenario: Search by keyword
-- **WHEN** 管理员输入关键字搜索
-- **THEN** 列表显示姓名、手机号或用户名包含该关键字的用户
-
-## ADDED Requirements
-
+## Purpose
+TBD - created by archiving change refactor-admin-console. Update Purpose after archive.
+## Requirements
 ### Requirement: User Enable/Disable
 系统 SHALL 支持启用或停用用户账号。
 
@@ -60,3 +42,4 @@
 #### Scenario: Cloud validation
 - **WHEN** 通过API绕过前端尝试修改自己的角色
 - **THEN** 云端校验拒绝该操作
+

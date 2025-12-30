@@ -1,25 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git ls-tree:*)",
-      "Bash(\"C:\\Users\\18538\\Desktop\\xiaowuye\\gongdanbaoxiu\\miniprogram\\components\\form-row\\index.json\")",
-      "Bash(git init:*)",
-      "Bash(git add:*)",
-      "Bash(git checkout:*)",
-      "Bash(mkdir:*)",
-      "Bash(test:*)",
-      "Bash(dir:*)",
-      "Bash(cat:*)",
-      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: 物业员工功能完整实现 - 提交维修员开发前版本\n\n主要功能：\n- 工作台页面：工单列表、状态筛选、搜索、扫码\n- 工单提交：完整的提报流程和表单验证\n- 工单详情：状态流转、时间轴、复核功能\n- 消息系统：通知公告、待办工单、提醒功能\n- 数据统计：工单统计和排名展示\n- 个人中心：个人信息和设置管理\n\n新增组件：\n- message-card: 消息卡片组件\n- module-icon: 模块图标组件\n- swipeable-message: 可滑动删除消息组件\n\n技术改进：\n- 完善的时间格式化工具\n- 消息模块映射逻辑\n- 优化的UI交互体验\n\n🤖 Generated with Claude Code\nEOF\n)\")",
-      "Bash(git pull:*)",
-      "Bash(git push:*)",
-      "Bash(git tag:*)",
-      "Bash(git remote add:*)",
-      "Bash(openspec list:*)",
-      "Bash(openspec validate:*)",
-      "Bash(openspec show:*)",
-      "Bash(tree:*)",
-      "Bash(ls:*)"
+      "Bash(git commit -m \"$(cat <<''EOF''\nfeat: 月度排名增加月份选择功能\n\n## 主要变更\n1. 默认显示当月排名数据\n2. 支持通过左右箭头切换上/下月\n3. 点击月份可打开日期选择器选择任意年月\n4. 月度排名独立于日期筛选器，不受其影响\n\n## 技术实现\n- 添加 rankingYear, rankingMonth, showMonthPicker 状态\n- 实现 prevMonth/nextMonth 方法切换月份\n- 添加 showMonthPickerDialog/closeMonthPicker 方法控制弹窗\n- 实现 loadRankings 方法加载指定月份排名数据\n- 调用 getEmployeeRanking 云函数获取员工排名\n\n## 影响范围\n- 办美员工数据页面 - 月度排名模块\n- 不影响工单汇总的日期筛选功能\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "WebSearch",
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__get-library-docs",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

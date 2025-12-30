@@ -603,7 +603,715 @@ notificationService.getUserNotifications()
 
 ---
 
+## 角色名称重构 - 已完成
+
+### 需求描述
+将角色名称从原来的称呼改为新的称呼:
+- 物业经理 → 行政经理
+- 物业员工 → 办美员工
+- 维修员、系统管理员 **不变**
+
+### 修改的文件
+
+#### 1. 核心常量文件
+**`miniprogram/utils/constants.js`**
+- ROLES 注释:物业经理 → 行政经理,物业员工 → 办美员工
+- ROLE_DISPLAY_NAMES:2: '行政经理',4: '办美员工'
+
+#### 2. 账号管理页面
+**`miniprogram/pages/admin/users/index.js`**
+- roleOptions 标签:物业经理 → 行政经理,物业员工 → 办美员工
+
+#### 3. 公告管理页面
+**`miniprogram/pages/admin/announcements/edit/index.js`**
+- roleOptions 标签:物业经理 → 行政经理,物业员工 → 办美员工
+
+#### 4. 登录页面
+**`miniprogram/pages/login/login.wxml`**
+- 测试账号角色显示:物业经理 → 行政经理,巡检员 → 办美员工
+
+#### 5. 个人中心页面
+**`miniprogram/pages/property/submitted/index.js`**
+- 默认 position:物业员工 → 办美员工
+
+#### 6. 工作台页面
+**`miniprogram/pages/index/index.js`** & **`miniprogram/pages/index/index.wxml`**
+- 所有注释中的角色名称更新
+
+#### 7. 工单详情页面
+**`miniprogram/pages/work-order-detail/index.js`** & **`miniprogram/pages/work-order-detail/index.wxml`**
+- 所有注释中的角色名称更新
+
+#### 8. 数据统计页面
+**`miniprogram/pages/data/index.js`** & **`miniprogram/pages/data/index.wxml`** & **`miniprogram/pages/data/index.wxss`**
+- 所有注释中的角色名称更新
+
+#### 9. 工具函数
+- `miniprogram/utils/dateUtils.js`
+- `miniprogram/utils/chartUtils.js`
+- `miniprogram/utils/animationUtils.js`
+- `miniprogram/styles/iconfont.wxss`
+
+#### 10. 云函数
+**`cloudfunctions/initDatabase/index.js`**
+- 角色初始数据注释
+- ROLES_DATA display_name:行政经理,办公员工
+- 测试用户 role.display_name:行政经理,办公员工
+
+**`cloudfunctions/workOrderManager/index.js`**
+- 所有权限校验和访问控制注释
+- 错误提示:只有行政经理才能删除工单
+
+**`cloudfunctions/getAnalyticsOverview/index.js`**
+**`cloudfunctions/getAnalyticsByStatus/index.js`**
+**`cloudfunctions/getAnalyticsByFloor/index.js`**
+**`cloudfunctions/getAnalyticsByLocation/index.js`**
+**`cloudfunctions/getResponsiblePartyRanking/index.js`**
+**`cloudfunctions/getEmployeeRanking/index.js`**
+- 文件头注释:物业经理数据分析 → 行政经理数据分析
+- 查询办美员工注释更新
+
+**`cloudfunctions/userAuth/index.js`**
+- 默认角色注释:物业员工 → 办美员工
+
+### Review 总结 (2025-12-23)
+
+**变更范围:**
+- 前端页面:8个文件
+- 云函数:9个文件
+- 工具/样式:4个文件
+- 总计:21个文件
+
+**核心改动:**
+1. ROLE_DISPLAY_NAMES 常量:所有角色显示名称来源于此
+2. 各页面硬编码的角色选项标签
+3. 云函数中的角色初始化数据
+4. 所有相关注释和提示信息
+
+**影响范围:**
+- 用户界面显示的角色名称
+- 账号管理的角色筛选选项
+- 公告发布的目标角色选项
+- 登录页测试账号显示
+- 错误提示信息
+- 代码注释
+
+**未修改的文件:**
+- packages/admin 目录(已废弃的旧代码)
+- 各种 Markdown 文档(设计文档、README等)
+- database/seeders(后端数据库种子文件)
+
+---
+
+## 部门字段重构 - 已完成
+
+### 需求描述
+重构部门字段名称：
+- 物业部 / 物业公司 → 信泰物业
+- 维修部 → 工程总包
+- 管理部 → 行政部
+- 新增：供应商
+- 同时修改工单责任方选项：物业公司 → 信泰物业
+- 需要数据迁移
+
+### 修改的文件
+
+#### 1. 前端部门选项（2个文件）
+- `miniprogram/pages/admin/users/add/index.js` - 第24行
+- `miniprogram/pages/admin/users/edit/index.js` - 第27行
+- 部门数组改为：`['行政部', '信泰物业', '工程总包', '供应商']`
+
+#### 2. 云函数初始化数据
+**`cloudfunctions/initDatabase/index.js`**
+- 测试管理员：管理部 → 行政部（第270行）
+- 测试经理：物业公司 → 信泰物业（第286行）
+- 测试维修员：维修部 → 工程总包（第302行）
+- 测试员工：物业公司 → 信泰物业（第318行）
+
+#### 3. 工单责任方选项（3个文件）
+- `cloudfunctions/workOrderManager/index.js` - 第107行
+- `miniprogram/pages/property/submit/index.js` - 第22行
+- `miniprogram/pages/work-order-edit/index.js` - 第29行
+- 责任方数组：物业公司 → 信泰物业
+
+#### 4. 工单通知逻辑
+**`cloudfunctions/workOrderManager/index.js`**
+- 第477-484行：新工单通知过滤条件
+- 第915-918行：复核通过通知过滤条件
+- 第943-946行：返工通知过滤条件
+- 全部改为筛选 `department: '信泰物业'`
+
+#### 5. 后端数据库种子
+**`database/seeders/20251112000004-seed-test-users.js`**
+- 系统管理员：管理部 → 行政部（第16行）
+- 物业经理：物业部 → 信泰物业（第30行）
+- 维修员：维修部 → 工程总包（第44行）
+- 物业员工：物业部 → 信泰物业（第58行）
+
+#### 6. 数据迁移功能
+**`cloudfunctions/initDatabase/index.js`**
+- 新增 `migrateDepartments()` 函数（第360-398行）
+- 新增 `migrateResponsibleParty()` 函数（第404-415行）
+- 新增 `migrate_departments` action（第494-507行）
+
+### Review 总结 (2025-12-23)
+
+**变更范围：**
+- 前端页面：3个文件
+- 云函数：2个文件
+- 后端种子：1个文件
+- 总计：6个文件
+
+**核心改动：**
+1. 部门选项从3个变为4个（新增"供应商"）
+2. 统一部门命名规范
+3. 责任方选项同步更新
+4. 通知逻辑中的部门过滤条件更新
+
+**数据迁移：**
+调用 initDatabase 云函数，传入 `action: 'migrate_departments'` 可执行以下迁移：
+- 用户表：物业公司/物业部 → 信泰物业
+- 用户表：维修部 → 工程总包
+- 用户表：管理部 → 行政部
+- 工单表：责任方 物业公司 → 信泰物业
+
+---
+
+## 筛选弹窗字段权限优化 - 已完成 (2025-12-24)
+
+### 需求描述
+根据用户角色动态显示筛选字段：
+- 维修员账号隐藏"责任方"和"报修人"筛选字段
+- 办美员工账号隐藏"报修人"筛选字段
+- 行政经理账号显示所有筛选字段
+
+### 修改的文件
+**`miniprogram/pages/index/index.js`**
+
+### 核心改动
+1. **修改 `getFilterRowsByRole` 函数**（第240-260行）
+   - 新增 `isMaintenanceWorker` 参数
+   - 维修员：显示楼层、工单类别、优先级（隐藏责任方、报修人）
+   - 办美员工：显示楼层、责任方、工单类别、优先级（隐藏报修人）
+   - 行政经理：显示所有字段（楼层、责任方、工单类别、报修人、优先级）
+
+2. **更新函数调用**（第149行）
+   - 传入 `isMaintenanceWorker` 参数
+
+### 影响范围
+- 只修改1个文件的2处代码
+- 不影响现有筛选逻辑，只控制字段显示
+
+---
+
+## 维修员KPI统计按部门过滤 - 已完成 (2025-12-25)
+
+### 需求描述
+维修员账号的数据页面，"工单汇总"改为"KPI统计"，四个卡片参考行政经理账号数据页面KPI统计模块，但数据仅统计该维修员所属部门（`department`）对应的责任方（`responsible_party`）的工单。
+
+例如：维修员部门是"信泰物业"，则统计所有 `responsible_party === '信泰物业'` 的工单。
+
+### 修改的文件
+**`miniprogram/pages/data/index.js`**
+
+### 核心改动
+**修改位置**：第266-270行，`loadStatistics()` 方法中的工单过滤逻辑
+
+**修改前**（按分配给个人的工单）：
+```javascript
+} else if (isMaintenanceWorker && userDepartment) {
+  // 维修员：只看分配给自己的工单（云函数也会过滤，这里做兜底）
+  myOrders = allOrders.filter(order =>
+    order.assigned_technician && order.assigned_technician.user_id === userId
+  );
+}
+```
+
+**修改后**（按部门/责任方过滤）：
+```javascript
+} else if (isMaintenanceWorker && userDepartment) {
+  // 维修员：统计该部门（责任方）的所有工单
+  myOrders = allOrders.filter(order =>
+    order.responsible_party === userDepartment
+  );
+}
+```
+
+### KPI指标说明
+KPI计算逻辑保持不变，与行政经理一致：
+| 指标 | 说明 |
+|-----|------|
+| 总工单数 | 该部门（责任方）的所有工单数 |
+| 已完成 | 状态为Completed的工单数 + 完成率% |
+| 进行中 | 状态不为Completed的工单数 |
+| 平均时长(h) | 已完成工单的平均处理时长 |
+
+### 影响范围
+- 只修改1行过滤条件代码
+- 不影响WXML模板（已使用正确的KPI卡片结构）
+- 不影响行政经理视图
+- 不影响办美员工视图
+
+---
+
+## 维修员KPI卡片文案修改 - 已完成 (2025-12-25)
+
+### 需求描述
+维修员数据页面的KPI统计，第一个卡片"提报工单数"改为"维修工单数"。
+
+### 修改的文件
+**`miniprogram/pages/data/index.wxml`**
+
+### 核心改动
+**修改位置**：第46-48行
+
+**修改前**：
+```xml
+<!-- 1. 提报工单数 -->
+<view class="kpi-card">
+  <text class="kpi-label">提报工单数</text>
+```
+
+**修改后**：
+```xml
+<!-- 1. 维修工单数/提报工单数 -->
+<view class="kpi-card">
+  <text class="kpi-label">{{isMaintenanceWorker ? '维修工单数' : '提报工单数'}}</text>
+```
+
+### 逻辑说明
+- 维修员（`isMaintenanceWorker === true`）→ 显示"维修工单数"
+- 办美员工（`isMaintenanceWorker === false`）→ 显示"提报工单数"
+
+### 影响范围
+- 只修改1处文案显示逻辑
+- 使用已有的 `isMaintenanceWorker` 变量
+- 不影响数据计算逻辑
+
+---
+
+## 工单编号重复校验修复 - 已完成 (2025-12-25)
+
+### 问题描述
+员工A提交工单使用了某编号，员工B扫描同样的编号时，应该提示"工单编号已使用"，但目前没有提示，依然可以扫码成功。
+
+### 根本原因分析
+前端代码（`submit/index.js:170-190`）已有重复校验逻辑，但存在问题：
+1. 调用 `getWorkOrderByNumber` 查询工单编号是否存在
+2. 云函数 `getByNumber` action 会进行**访问权限校验**（第1303-1312行）
+3. 当员工B扫描员工A使用的编号时：
+   - 云函数找到该工单
+   - 但员工B没有权限查看员工A的工单
+   - 返回 `{ success: false, error: '无权限查看该工单' }`
+4. 前端 catch 块认为"工单不存在"，继续使用该编号
+
+### 解决方案
+在云函数中添加一个新的 action `checkOrderNumberExists`：
+- 只检查工单编号是否存在
+- 不返回工单详情
+- 不进行访问权限校验
+- 返回 `{ success: true, exists: true/false }`
+
+### 待办事项
+- [x] 云函数添加 `checkOrderNumberExists` action
+- [x] 前端 workOrderService 添加 `checkOrderNumberExists` 方法
+- [x] 前端 handleScan 改用新方法校验
+
+### 修改的文件
+- `cloudfunctions/workOrderManager/index.js` - 添加 `checkOrderNumberExists` action（第1320-1335行）
+- `miniprogram/services/workOrder.js` - 添加 `checkOrderNumberExists` 方法（第158-187行）
+- `miniprogram/pages/property/submit/index.js` - handleScan 改用新方法（第163-216行）
+
+### Review 总结
+
+**核心改动：**
+1. 云函数新增 `checkOrderNumberExists` action，只查询工单编号是否存在，不进行权限校验
+2. 前端服务新增 `checkOrderNumberExists` 方法，返回布尔值
+3. handleScan 方法改用新接口，检查失败时提示"检查失败，请重试"而不是静默继续
+
+**修复逻辑：**
+```
+扫描二维码
+  ↓
+调用 checkOrderNumberExists(scannedCode)
+  ↓
+云函数查询 work_orders 集合
+  ↓
+返回 { success: true, exists: true/false }
+  ↓
+exists === true → 弹窗"编号重复"
+exists === false → 设置工单编号，提示"扫码成功"
+```
+
+**影响范围：**
+- 只添加新接口，不修改原有 `getByNumber` 逻辑
+- 代码改动约30行，影响最小
+
+---
+
+## 集成 Vant Weapp UI 组件库 - 已完成 (2025-12-28)
+
+### 需求描述
+在小物业报修小程序中集成 Vant Weapp UI 组件库，提升界面美观度和用户体验。
+
+### 完成的工作
+
+#### 1. 安装与配置
+- [x] 安装 @vant/weapp 到项目（版本 1.11.7）
+- [x] 配置 npm 构建
+- [x] 在 app.json 中全局注册 Vant 组件
+
+#### 2. 组件替换
+
+**首页（pages/index/index）完成替换：**
+
+1. **加载状态** - van-loading
+   - 替换原 weui-loading
+   - 垂直布局，显示"加载中..."文字
+
+2. **空状态** - van-empty
+   - 替换自定义 empty-state
+   - 显示"暂无工单记录"
+
+3. **日期选择器** - van-popup + 原生 picker
+   - 使用 van-popup 从底部弹出，圆角设计
+   - 保留原生 picker 确保自动定位到当前日期
+   - 左右布局（开始日期 | 至 | 结束日期）
+   - 底部确认按钮，未选择时置灰
+   - 支持日期范围验证
+
+4. **筛选弹窗** - van-popup
+   - 从底部弹出，圆角设计，高度70%
+   - 包含自定义 filter-row 组件
+   - 底部按钮使用 van-button
+
+5. **选择器弹窗** - van-popup
+   - 从底部弹出，高度50%
+   - 用于楼层、责任方、工单类别、优先级选择
+
+6. **报修人输入弹窗** - van-popup
+   - 居中显示，宽度80%
+   - 包含输入框和确认按钮
+
+7. **按钮组件** - van-button
+   - 筛选弹窗底部的"重置"和"确定"按钮
+   - 统一使用绿色主题色 #10b981
+
+### 修改的文件
+
+1. **配置文件**
+   - `miniprogram/app.json` - 注册全局组件
+   - `miniprogram/package.json` - 添加依赖
+
+2. **首页文件**
+   - `miniprogram/pages/index/index.wxml` - 替换组件
+   - `miniprogram/pages/index/index.js` - 修改日期选择逻辑
+
+### 技术细节
+
+#### 日期选择器实现
+- **最终方案**: van-popup + 原生 picker
+- **放弃方案**: van-calendar（无法同时满足高度控制和默认定位）
+- **特点**:
+  - 原生 picker 自动定位到当前年月日
+  - 支持滚动选择任意日期
+  - 美观的卡片式布局
+  - 底部确认按钮带状态提示
+
+#### 弹窗高度控制
+- 筛选弹窗: 70%
+- 选择器弹窗: 50%
+- 报修人输入: 居中，宽度80%
+- 日期选择: 自适应内容高度
+
+### Review 总结
+
+**优点:**
+1. UI 更现代、更美观
+2. 交互体验更流畅（圆角弹窗、平滑动画）
+3. 代码更简洁（减少自定义样式）
+4. 后续开发更高效（可直接使用组件库）
+
+**改动范围:**
+- 只修改首页，影响范围可控
+- 保持所有原有功能不变
+- 代码简化约50行
+
+**注意事项:**
+- Vant Weapp 已全局注册，其他页面可直接使用
+- 主题色统一为 #10b981（绿色）
+- 所有弹窗均支持点击遮罩层关闭
+
+---
+
+## 登录页面UI完整移植 - 已完成 (2025-12-28)
+
+### 需求描述
+将源项目（C:\Users\18538\Desktop\新建文件夹\miniprogram）的登录页面完整移植到当前项目，要求：
+1. 完全移植UI界面、UI元素、图标、布局和交互表现
+2. 在不破坏当前项目主体架构的前提下，适配其路由、状态管理、接口与数据结构
+3. 保留当前项目的快捷登录模块
+4. 视觉与交互100%对齐源项目，但能在当前项目中稳定运行
+
+### 完成的工作
+
+#### 1. 创建新组件（2个）
+
+**header-blobs 组件** (`miniprogram/components/header-blobs/`)
+- 实现紫蓝色渐变背景 (#667eea → #764ba2)
+- 3个浮动blob装饰动画（不同大小、位置、延迟）
+- 平滑的浮动动画效果
+
+**login-form 组件** (`miniprogram/components/login-form/`)
+- 完整的登录表单UI（用户名、密码、记住密码、忘记密码、注册提示）
+- 使用CSS绘制所有图标（用户、锁、眼睛、复选框）
+- 集成完整业务逻辑：
+  - auth服务调用
+  - 密码登录
+  - 记住用户名功能
+  - 表单验证
+  - 角色权限判断
+  - 自动跳转
+
+#### 2. 页面文件修改（4个）
+
+**login.wxml**
+- 采用源项目的页面结构：Header + Main Content + Home Indicator
+- 使用header-blobs组件替代原有背景
+- 使用login-form组件替代原有表单
+- 保留快捷登录模块（6个快捷登录按钮）
+
+**login.wxss**
+- 采用源项目的简洁容器样式
+- Header区域：492rpx高度，标题左上角定位
+- Main Content：圆角白色背景，向上偏移48rpx制造层次感
+- 快捷登录：白色卡片样式，紫色文字 (#667eea)
+- Home Indicator：iOS风格底部指示器
+
+**login.json**
+- 引用header-blobs和login-form组件
+
+**login.js**
+- 精简为容器页面（从267行减少到101行）
+- 保留自动登录功能
+- 保留快捷登录功能
+
+### 技术亮点
+
+1. **CSS绘制图标**
+   - 完全避免图片资源依赖
+   - 用户图标：圆形头部 + 半圆身体
+   - 锁图标：U形锁扣 + 矩形锁体
+   - 眼睛图标：椭圆外框 + 圆形瞳孔/斜线
+   - 复选框：边框 + 对勾（CSS边框旋转）
+
+2. **组件化设计**
+   - header-blobs：纯展示组件，无业务逻辑
+   - login-form：完整功能组件，封装所有登录逻辑
+   - 页面层：薄容器层，只处理快捷登录和自动登录
+
+3. **样式100%对齐源项目**
+   - 紫蓝色渐变背景
+   - 浮动blob动画
+   - 白色玻璃质感登录卡片
+   - 圆角输入框阴影效果
+   - 渐变登录按钮
+
+4. **功能完全保留**
+   - ✅ 密码登录
+   - ✅ 快捷登录（6个测试账号）
+   - ✅ 自动登录
+   - ✅ 记住密码
+   - ✅ 角色权限判断
+   - ✅ auth服务集成
+
+### 修改的文件清单
+
+**新增文件（8个）:**
+- `miniprogram/components/header-blobs/index.wxml`
+- `miniprogram/components/header-blobs/index.wxss`
+- `miniprogram/components/header-blobs/index.js`
+- `miniprogram/components/header-blobs/index.json`
+- `miniprogram/components/login-form/index.wxml`
+- `miniprogram/components/login-form/index.wxss`
+- `miniprogram/components/login-form/index.js`
+- `miniprogram/components/login-form/index.json`
+
+**修改文件（4个）:**
+- `miniprogram/pages/login/login.wxml` - 使用新组件
+- `miniprogram/pages/login/login.wxss` - 简洁容器样式
+- `miniprogram/pages/login/login.json` - 引用组件
+- `miniprogram/pages/login/login.js` - 精简为容器（267行 → 101行）
+
+### 代码质量
+
+1. **代码减少**：login.js 从267行精简到101行（减少62%）
+2. **结构清晰**：组件职责明确，容器层极简
+3. **无图片依赖**：所有图标使用CSS绘制
+4. **完全向后兼容**：不影响任何其他页面
+5. **符合简洁原则**：只修改必要的代码，影响最小
+
+### 影响范围
+
+- 只修改登录页面相关文件
+- 不影响其他页面
+- 不修改任何服务层代码
+- 不引入新的依赖
+
+### 待测试项
+
+- [ ] 密码登录功能
+- [ ] 快捷登录功能
+- [ ] 自动登录功能
+- [ ] 记住密码功能
+- [ ] 角色权限跳转
+- [ ] UI在不同设备上的表现
+- [ ] 动画性能
+
+---
+
+## 编辑工单页面优化 - 已完成 (2025-12-29)
+
+### 需求描述
+1. 下拉选项使用 custom-picker 组件（与提交工单页面一致）
+2. 优先级按钮UI样式与提交工单页面一致
+3. 问题描述字段最大35字符，无最小限制
+4. "接单"按钮文案改为"确认维修"
+
+### 修改的文件
+
+**1. `miniprogram/pages/work-order-edit/index.wxml`**
+- 楼层、工单类别、责任方字段改用 `openSelector` + `card-arrow` 样式
+- 添加 `custom-picker` 组件
+- 问题描述 `maxlength="35"`
+
+**2. `miniprogram/pages/work-order-edit/index.js`**
+- 添加 `selectorType`、`isSelectorOpen`、`selectorOptions`、`selectorCurrentValue` 状态
+- 添加 `openSelector`、`closeSelector`、`onSelectorConfirm` 方法
+
+**3. `miniprogram/pages/work-order-edit/index.json`**
+- 添加 `custom-picker` 组件引用
+
+**4. `miniprogram/pages/work-order-edit/index.wxss`**
+- 添加 `.card-arrow` 样式（CSS绘制箭头）
+- 更新优先级按钮样式（渐变、阴影、圆角药丸形状）
+
+**5. `cloudfunctions/workOrderManager/index.js`**
+- 移除问题描述10字符最小限制
+
+**6. `miniprogram/pages/index/index.wxml`**
+- "接单" → "确认维修"
+
+**7. `miniprogram/pages/work-order-detail/index.wxml`**
+- "接单" → "确认维修"
+
+---
+
+## 工单详情页三个点菜单简化 - 已完成 (2025-12-29)
+
+### 需求描述
+将工单详情页底部三个点按钮点开后的弹窗简化：删除标题，删除改用图标。
+
+### 修改的文件
+
+**1. `miniprogram/pages/work-order-detail/index.wxml` (第282-294行)**
+- 删除 `.more-actions-header` 标题区域
+- 将 "删除" 文字改为 `<text class="iconfont icon-shanchu">` 图标
+- 从底部抽屉改为浮动菜单
+
+**2. `miniprogram/pages/work-order-detail/index.wxss` (第1355-1399行)**
+- 添加 `.more-actions-menu` - 浮动菜单样式（绝对定位、圆角、阴影）
+- 添加 `fadeInUp` 动画
+- 添加 `.more-action-item` - 图标容器样式（80rpx方形、居中）
+- 添加 `.delete-action` - 红色删除图标样式（#FF3B30）
+
+### UI效果
+- 点击三个点按钮后，在按钮附近弹出小型浮动菜单
+- 菜单只包含一个红色删除图标
+- 点击遮罩层或图标后关闭菜单
+
+---
+
+## 工单跨角色共享权限细化 - 已完成 (2025-12-29)
+
+### 需求描述
+1. 办美员工(4)与行政经理(2)之间工单共享可见，但**只有提报人能操作**
+2. 行政经理账号保持现有完整权限（可操作所有共享工单）
+3. "已完成"状态工单：办美员工只能看自己提交的
+
+### 修改的文件
+
+**1. `cloudfunctions/workOrderManager/index.js`**
+
+| 修改点 | 行号 | 说明 |
+|-------|------|------|
+| reviewOrder | 987-992 | 回退为只允许提报人或管理员审核 |
+| urgeReview | 1198-1205 | 移除办美员工(4)权限，只允许维修员/行政经理/管理员 |
+| urgeRepair | 1118-1121 | 新增：非管理员需是提报人才能催维修 |
+| list | 824-833 | 已完成状态：办美员工只能看自己提交的工单 |
+
+**2. `miniprogram/pages/work-order-detail/index.js`**
+
+| 修改点 | 行号 | 说明 |
+|-------|------|------|
+| Pending Repair | 267 | 办美员工需是提报人才显示修改/删除按钮 |
+| In Progress | 281 | 办美员工需是提报人才显示催维修/删除按钮 |
+| Needs Rework | 309 | 办美员工需是提报人才显示催维修/删除按钮 |
+
+### 权限矩阵（修改后）
+
+| 操作 | 管理员(1) | 行政经理(2) | 维修员(3) | 办美员工(4) |
+|-----|----------|------------|----------|------------|
+| 查看工单列表 | 全部 | 共享(2,4) | 部门匹配 | 共享(2,4) |
+| 查看已完成工单 | 全部 | 共享(2,4) | 部门匹配 | **仅自己提交** |
+| 复核工单 | ✓ | **仅自己提交** | ✗ | **仅自己提交** |
+| 催维修 | ✓ | **仅自己提交** | ✗ | **仅自己提交** |
+| 催复核 | ✓ | ✓ | ✓ | **✗** |
+
+### 影响范围
+- 云函数4处修改
+- 前端3处修改
+- 消息提醒逻辑不变
+- 不影响管理员(1)和维修员(3)的权限
+
+---
+
+## 待部署云函数
+
+以下云函数有待部署的更改：
+- [ ] `workOrderManager` - 头像刷新、工单编号格式、问题描述验证、跨角色共享权限细化
+
+---
+
 ## 历史开发记录
+
+### 工作台页面切换刷新修复 (2025-12-30)
+
+**问题描述:**
+工作台（首页）页面在以下场景中不会自动刷新数据：
+1. 从其他 TabBar 页面（数据、消息、我的）切换回工作台
+2. 从子页面（如工单详情）返回工作台
+
+**根本原因:**
+`onShow` 中的 `dataLoaded` 标记逻辑导致首次加载后不再重新加载数据。
+
+**解决方案:**
+移除 `dataLoaded` 检查，让每次 `onShow` 都调用 `loadWorkOrders()` 刷新数据（与其他 TabBar 页面行为一致）。
+
+**修改的文件:**
+- `gongdanbaoxiu/miniprogram/pages/index/index.js`
+
+**修改内容:**
+1. 第 16 行：移除 `dataLoaded: false` 初始化
+2. 第 205-208 行：移除 `if (!this.data.dataLoaded)` 条件，改为直接调用 `this.loadWorkOrders()`
+3. 第 279 行：移除 `this.setData({ dataLoaded: false })`
+4. 第 378 行：移除 `dataLoaded: true` 的设置
+
+**影响范围:**
+- 只影响工作台页面的数据加载逻辑
+- 每次切换回工作台都会重新请求数据，与数据页、消息页行为一致
+
+---
 
 ### 管理员后台功能 (已完成)
 - 角色与权限管理页面
